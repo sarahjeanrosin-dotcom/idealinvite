@@ -472,6 +472,142 @@
     display: inline-block;
   }
 
+
+  /* Vibe validation section */
+  .vibe-validation {
+    display: none;
+    margin-top: 28px;
+    animation: fadeIn 0.4s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .vibe-summary {
+    background: rgba(232,201,184,0.15);
+    border: 1px solid var(--blush);
+    border-radius: 2px;
+    padding: 18px 20px;
+    margin-bottom: 24px;
+  }
+
+  .vibe-summary-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--dusty-rose);
+    margin-bottom: 8px;
+  }
+
+  .vibe-summary-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    font-style: italic;
+    color: var(--deep);
+    line-height: 1.6;
+  }
+
+  .example-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  @media (max-width: 700px) { .example-cards { grid-template-columns: 1fr; } }
+
+  .example-card {
+    border: 2px solid var(--border);
+    border-radius: 2px;
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    background: var(--cream);
+  }
+
+  .example-card:hover { border-color: var(--blush); }
+
+  .example-card.selected {
+    border-color: var(--dusty-rose);
+    background: rgba(201,144,122,0.06);
+  }
+
+  .example-card.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    color: var(--dusty-rose);
+    font-size: 14px;
+  }
+
+  .example-card-label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--light-mid);
+    margin-bottom: 12px;
+  }
+
+  .example-address {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--deep);
+    white-space: pre-line;
+  }
+
+  /* Abbreviation toggle */
+  .abbrev-section {
+    margin-bottom: 24px;
+  }
+
+  .abbrev-options {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .abbrev-btn {
+    padding: 10px 18px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    font-family: 'Jost', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--mid);
+    background: var(--cream);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .abbrev-btn:hover { border-color: var(--blush); }
+  .abbrev-btn.selected { border-color: var(--dusty-rose); background: rgba(201,144,122,0.08); color: var(--deep); }
+
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 4px;
+  }
+
+  .section-sublabel {
+    font-size: 12px;
+    color: var(--light-mid);
+    margin-bottom: 10px;
+  }
+
+  .validating-state {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 0;
+    color: var(--light-mid);
+    font-size: 14px;
+  }
+
   /* Responsive */
   @media (max-width: 600px) {
     .card { padding: 24px 20px; }
@@ -535,7 +671,44 @@
       <span class="chip" onclick="setVibe(this)">Rustic &amp; earthy</span>
     </div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="lockVibe()">Confirm Vibe →</button>
+      <button class="btn btn-primary" id="confirm-vibe-btn" onclick="confirmVibe()">Confirm Vibe →</button>
+    </div>
+
+    <!-- Vibe Validation Section -->
+    <div class="vibe-validation" id="vibe-validation">
+      <div id="validating-state" class="validating-state" style="display:none;">
+        <span class="spinner"></span>
+        <span>Reading your vibe and generating examples…</span>
+      </div>
+
+      <div id="validation-content" style="display:none;">
+        <!-- AI Summary -->
+        <div class="vibe-summary">
+          <div class="vibe-summary-label">✦ How the AI understands your vibe</div>
+          <div class="vibe-summary-text" id="vibe-summary-text"></div>
+        </div>
+
+        <!-- 3 Example Cards -->
+        <div class="section-label">Choose your preferred style</div>
+        <div class="section-sublabel">The AI generated three interpretations — pick the one that feels right.</div>
+        <div class="example-cards" id="example-cards"></div>
+
+        <!-- Abbreviation preference -->
+        <div class="abbrev-section">
+          <div class="section-label">Abbreviation preference</div>
+          <div class="section-sublabel">Applies to everything: street types, state names, titles, and more.</div>
+          <div class="abbrev-options">
+            <button class="abbrev-btn" id="abbrev-spell" onclick="selectAbbrev('spell')">Spell everything out</button>
+            <button class="abbrev-btn" id="abbrev-abbrev" onclick="selectAbbrev('abbrev')">Use abbreviations</button>
+            <button class="abbrev-btn selected" id="abbrev-ai" onclick="selectAbbrev('ai')">Let AI decide</button>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" id="lock-vibe-btn" onclick="lockVibe()" disabled>Use This Style →</button>
+          <span id="lock-vibe-hint" style="font-size:12px;color:var(--light-mid);">Select a style example above to continue</span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -652,7 +825,27 @@ function updateKeyStatus() {
   }
 }
 
-function lockVibe() {
+let selectedExampleIndex = null;
+let abbrevPreference = 'ai'; // 'spell', 'abbrev', 'ai'
+let vibeExamples = [];
+
+function selectAbbrev(val) {
+  abbrevPreference = val;
+  ['spell','abbrev','ai'].forEach(v => {
+    document.getElementById('abbrev-' + v).classList.toggle('selected', v === val);
+  });
+}
+
+function selectExample(idx) {
+  selectedExampleIndex = idx;
+  document.querySelectorAll('.example-card').forEach((c, i) => {
+    c.classList.toggle('selected', i === idx);
+  });
+  document.getElementById('lock-vibe-btn').disabled = false;
+  document.getElementById('lock-vibe-hint').style.display = 'none';
+}
+
+async function confirmVibe() {
   if (!API_KEY) {
     alert('Please enter your Anthropic API key in the bar at the top first.');
     document.getElementById('api-key-input').focus();
@@ -661,21 +854,143 @@ function lockVibe() {
   vibeText = document.getElementById('vibe-input').value.trim();
   if (!vibeText) { alert('Please describe your vibe first.'); return; }
 
-  // Store the vibe directly — it will be used as instructions when formatting each address
-  vibeRules = vibeText;
+  // Show loading state
+  const btn = document.getElementById('confirm-vibe-btn');
+  btn.disabled = true;
+  btn.textContent = 'Reading your vibe…';
+  document.getElementById('vibe-input').disabled = true;
+  document.querySelectorAll('.chip').forEach(c => c.style.pointerEvents = 'none');
+
+  document.getElementById('vibe-validation').style.display = 'block';
+  document.getElementById('validating-state').style.display = 'flex';
+  document.getElementById('validation-content').style.display = 'none';
+
+  document.getElementById('vibe-validation').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  try {
+    const sampleGuests = [
+      { name: 'Dr. Sarah and James Whitfield', street: '142 Elm St', city: 'Boston', state: 'MA', zip: '02101' },
+      { name: 'Margaret Chen', street: '456 Oak Avenue', city: 'Chicago', state: 'Illinois', zip: '60601' },
+      { name: 'The Johnson Family', street: '789 Riverside Blvd', city: 'Nashville', state: 'TN', zip: '37201' }
+    ];
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+        'x-api-key': API_KEY
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-6',
+        max_tokens: 1500,
+        messages: [{
+          role: 'user',
+          content: `You are a wedding stationery expert. A couple has described their invitation vibe as:
+
+"${vibeText}"
+
+Do two things:
+
+1. Write a warm 1-2 sentence summary of how you understand their vibe. Start with "I understand you're going for..." Be specific and confident — reflect their style back to them so they feel heard.
+
+2. Generate THREE different style interpretations of this vibe applied to these sample guests:
+- Dr. Sarah and James Whitfield, 142 Elm St, Boston, MA 02101
+- Margaret Chen, 456 Oak Avenue, Chicago, Illinois 60601  
+- The Johnson Family, 789 Riverside Blvd, Nashville, TN 37201
+
+Each interpretation should be a slightly different take on the vibe (e.g. more/less formal, different title usage, etc.) but all true to the spirit described.
+
+Respond in this exact JSON format (no markdown, no extra text):
+{
+  "summary": "I understand you're going for...",
+  "examples": [
+    {
+      "label": "Option A — [short style name]",
+      "addresses": ["formatted address 1", "formatted address 2", "formatted address 3"]
+    },
+    {
+      "label": "Option B — [short style name]",
+      "addresses": ["formatted address 1", "formatted address 2", "formatted address 3"]
+    },
+    {
+      "label": "Option C — [short style name]",
+      "addresses": ["formatted address 1", "formatted address 2", "formatted address 3"]
+    }
+  ]
+}`
+        }]
+      })
+    });
+
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+
+    const text = data.content[0].text.trim().replace(/^```json|^```|```$/gm, '').trim();
+    const parsed = JSON.parse(text);
+
+    // Populate summary
+    document.getElementById('vibe-summary-text').textContent = parsed.summary;
+
+    // Populate example cards
+    vibeExamples = parsed.examples;
+    const cardsContainer = document.getElementById('example-cards');
+    cardsContainer.innerHTML = '';
+    parsed.examples.forEach((ex, i) => {
+      const card = document.createElement('div');
+      card.className = 'example-card';
+      card.onclick = () => selectExample(i);
+      card.innerHTML = `
+        <div class="example-card-label">${ex.label}</div>
+        <div class="example-address">${ex.addresses.join('\n\n')}</div>
+      `;
+      cardsContainer.appendChild(card);
+    });
+
+    document.getElementById('validating-state').style.display = 'none';
+    document.getElementById('validation-content').style.display = 'block';
+    btn.textContent = '✓ Vibe Submitted';
+
+  } catch(e) {
+    document.getElementById('validating-state').style.display = 'none';
+    document.getElementById('vibe-validation').style.display = 'none';
+    btn.disabled = false;
+    btn.textContent = 'Confirm Vibe →';
+    document.getElementById('vibe-input').disabled = false;
+    document.querySelectorAll('.chip').forEach(c => c.style.pointerEvents = 'auto');
+    alert('Error reading vibe: ' + e.message);
+  }
+}
+
+function lockVibe() {
+  if (selectedExampleIndex === null) return;
+
+  const chosenExample = vibeExamples[selectedExampleIndex];
+  const abbrevInstruction = abbrevPreference === 'spell'
+    ? 'IMPORTANT: Spell out everything — full street types (Street, Avenue, Boulevard, Drive, Lane, Court, etc.), full state names, full titles (Mister, Missus) — no abbreviations of any kind.'
+    : abbrevPreference === 'abbrev'
+    ? 'IMPORTANT: Use standard abbreviations throughout — St, Ave, Blvd, Dr, Ln, Ct for streets; 2-letter state codes; Mr, Mrs, Dr for titles.'
+    : 'Use your best judgment on abbreviations — be consistent and match the overall formality of the vibe.';
+
+  vibeRules = `Original vibe: "${vibeText}"
+
+Chosen style example (use this as your formatting template):
+${chosenExample.addresses.join('\n---\n')}
+
+${abbrevInstruction}`;
 
   document.getElementById('step1-ind').classList.add('done');
   document.getElementById('step2-ind').classList.add('active');
   document.getElementById('card-upload').style.opacity = '1';
   document.getElementById('card-upload').style.pointerEvents = 'auto';
+  document.getElementById('lock-vibe-btn').textContent = '✓ Style Locked In';
+  document.getElementById('lock-vibe-btn').disabled = true;
+  document.getElementById('abbrev-spell').disabled = true;
+  document.getElementById('abbrev-abbrev').disabled = true;
+  document.getElementById('abbrev-ai').disabled = true;
+  document.querySelectorAll('.example-card').forEach(c => c.style.pointerEvents = 'none');
 
-  const btn = document.querySelector('#card-vibe .btn-primary');
-  btn.textContent = '✓ Vibe Confirmed';
-  btn.disabled = true;
-  document.getElementById('vibe-input').disabled = true;
-  document.querySelectorAll('.chip').forEach(c => c.style.pointerEvents = 'none');
-
-  // Scroll to upload step
   document.getElementById('card-upload').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -808,37 +1123,50 @@ async function startFormatting() {
     tbody.appendChild(tr);
   });
 
-  // Process in batches of 5
-  const BATCH = 5;
+  // Process one at a time to avoid rate limiting, with retry on 429
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
   let done = 0;
 
-  for (let i = 0; i < parsedData.length; i += BATCH) {
-    const batch = parsedData.slice(i, i + BATCH);
-    await Promise.all(batch.map(async (row, bi) => {
-      const idx = i + bi;
-      document.getElementById('status-' + idx).innerHTML = '<span class="spinner"></span>';
-      document.getElementById('status-' + idx).className = 'status-badge loading';
+  for (let i = 0; i < parsedData.length; i++) {
+    const row = parsedData[i];
+    document.getElementById('status-' + i).innerHTML = '<span class="spinner"></span>';
+    document.getElementById('status-' + i).className = 'status-badge loading';
 
+    let attempts = 0;
+    let success = false;
+    while (attempts < 4 && !success) {
       try {
-        const formatted = await formatAddress(row, idx);
-        formattedResults[idx] = formatted;
-        document.getElementById('fmt-' + idx).textContent = formatted;
-        document.getElementById('status-' + idx).textContent = '✓ Done';
-        document.getElementById('status-' + idx).className = 'status-badge done';
+        if (attempts > 0) {
+          const wait = attempts * 3000;
+          document.getElementById('status-' + i).title = `Rate limited, retrying in ${wait/1000}s…`;
+          await sleep(wait);
+        }
+        const formatted = await formatAddress(row, i);
+        formattedResults[i] = formatted;
+        document.getElementById('fmt-' + i).textContent = formatted;
+        document.getElementById('status-' + i).textContent = '✓ Done';
+        document.getElementById('status-' + i).className = 'status-badge done';
+        success = true;
       } catch(e) {
-        console.error('Row', idx, 'error:', e);
-        formattedResults[idx] = '';
-        document.getElementById('fmt-' + idx).textContent = 'Could not format: ' + e.message;
-        document.getElementById('status-' + idx).textContent = '✗ ' + e.message.slice(0, 30);
-        document.getElementById('status-' + idx).className = 'status-badge error';
-        document.getElementById('status-' + idx).title = e.message;
+        attempts++;
+        if (attempts >= 4) {
+          console.error('Row', i, 'error:', e);
+          formattedResults[i] = '';
+          document.getElementById('fmt-' + i).textContent = 'Could not format: ' + e.message;
+          document.getElementById('status-' + i).textContent = '✗ ' + e.message.slice(0, 30);
+          document.getElementById('status-' + i).className = 'status-badge error';
+          document.getElementById('status-' + i).title = e.message;
+        }
       }
+    }
 
-      done++;
-      const pct = Math.round((done / parsedData.length) * 100);
-      document.getElementById('progress-fill').style.width = pct + '%';
-      document.getElementById('progress-text').textContent = `${done} of ${parsedData.length} addresses formatted`;
-    }));
+    done++;
+    const pct = Math.round((done / parsedData.length) * 100);
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-text').textContent = `${done} of ${parsedData.length} addresses formatted`;
+
+    // Small pause between each request to stay under rate limit
+    if (i < parsedData.length - 1) await sleep(500);
   }
 
   document.getElementById('results-desc').textContent = `All ${parsedData.length} addresses formatted in your style.`;
@@ -881,6 +1209,7 @@ async function formatAddress(row, idx) {
   if (!res.ok) {
     const errText = await res.text();
     console.error('API error:', res.status, errText);
+    if (res.status === 429) throw new Error('Rate limited (429) — retrying…');
     throw new Error('API error ' + res.status);
   }
 
