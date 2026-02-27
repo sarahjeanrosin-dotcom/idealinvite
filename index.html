@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wedding Address Formatter</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #faf6f0;
+    --warm-white: #fffdf9;
+    --blush: #e8c9b8;
+    --dusty-rose: #c9907a;
+    --deep: #2a1f1a;
+    --mid: #6b4f42;
+    --light-mid: #a07060;
+    --border: rgba(42,31,26,0.12);
+    --shadow: rgba(42,31,26,0.08);
+  }
+
+  body {
+    font-family: 'Jost', sans-serif;
+    background: var(--cream);
+    color: var(--deep);
+    min-height: 100vh;
+    font-weight: 300;
+  }
+
+  /* Decorative top border */
+  .top-ornament {
+    height: 4px;
+    background: linear-gradient(90deg, transparent, var(--dusty-rose), var(--blush), var(--dusty-rose), transparent);
+  }
+
+  header {
+    text-align: center;
+    padding: 56px 24px 40px;
+    position: relative;
+  }
+
+  header::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 1px;
+    background: var(--blush);
+    margin: 28px auto 0;
+  }
+
+  .eyebrow {
+    font-family: 'Jost', sans-serif;
+    font-weight: 400;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--dusty-rose);
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(36px, 6vw, 58px);
+    line-height: 1.1;
+    color: var(--deep);
+    letter-spacing: 0.02em;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--dusty-rose);
+  }
+
+  .subtitle {
+    margin-top: 14px;
+    font-size: 14px;
+    color: var(--light-mid);
+    letter-spacing: 0.05em;
+  }
+
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  /* Steps */
+  .steps {
+    display: flex;
+    gap: 0;
+    margin-bottom: 48px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    background: var(--warm-white);
+  }
+
+  .step {
+    flex: 1;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-right: 1px solid var(--border);
+    opacity: 0.4;
+    transition: opacity 0.3s;
+  }
+
+  .step:last-child { border-right: none; }
+  .step.active { opacity: 1; }
+  .step.done { opacity: 0.7; }
+
+  .step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--dusty-rose);
+    color: var(--dusty-rose);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+    font-family: 'Cormorant Garamond', serif;
+  }
+
+  .step.done .step-num {
+    background: var(--dusty-rose);
+    color: white;
+  }
+
+  .step-label {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mid);
+  }
+
+  /* Cards */
+  .card {
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 36px 40px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 20px var(--shadow);
+  }
+
+  .card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 400;
+    margin-bottom: 6px;
+    color: var(--deep);
+  }
+
+  .card-desc {
+    font-size: 13px;
+    color: var(--light-mid);
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+
+  label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 8px;
+  }
+
+  textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 14px 16px;
+    font-family: 'Jost', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--deep);
+    background: var(--cream);
+    resize: vertical;
+    min-height: 100px;
+    outline: none;
+    transition: border-color 0.2s;
+    line-height: 1.6;
+  }
+
+  textarea:focus { border-color: var(--dusty-rose); }
+  textarea::placeholder { color: var(--light-mid); opacity: 0.6; }
+
+  /* Vibe examples */
+  .vibe-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .chip {
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--mid);
+    cursor: pointer;
+    background: transparent;
+    transition: all 0.2s;
+    font-family: 'Jost', sans-serif;
+  }
+
+  .chip:hover {
+    border-color: var(--dusty-rose);
+    color: var(--dusty-rose);
+    background: rgba(232,201,184,0.1);
+  }
+
+  /* File upload */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 2px;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--cream);
+    position: relative;
+  }
+
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--dusty-rose);
+    background: rgba(232,201,184,0.08);
+  }
+
+  .upload-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  .upload-icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+    opacity: 0.5;
+  }
+
+  .upload-text {
+    font-size: 14px;
+    color: var(--mid);
+  }
+
+  .upload-sub {
+    font-size: 12px;
+    color: var(--light-mid);
+    margin-top: 6px;
+  }
+
+  .file-loaded {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: rgba(201,144,122,0.08);
+    border: 1px solid var(--blush);
+    border-radius: 2px;
+    font-size: 13px;
+    color: var(--mid);
+  }
+
+  /* Column mapping */
+  .col-map {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 8px;
+  }
+
+  .col-map-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  select {
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 10px 14px;
+    font-family: 'Jost', sans-serif;
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--deep);
+    background: var(--cream);
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a07060' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+  }
+
+  select:focus { border-color: var(--dusty-rose); }
+
+  /* Preview table */
+  .preview-table-wrap {
+    overflow-x: auto;
+    margin-top: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--light-mid);
+    border-bottom: 1px solid var(--border);
+    font-weight: 400;
+  }
+
+  td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--deep);
+    line-height: 1.5;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(232,201,184,0.05); }
+
+  .formatted-cell {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    white-space: pre-line;
+    color: var(--deep);
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 400;
+  }
+
+  .status-badge.pending { background: #f0ece6; color: var(--mid); }
+  .status-badge.loading { background: rgba(232,201,184,0.3); color: var(--dusty-rose); }
+  .status-badge.done { background: rgba(150,200,150,0.2); color: #4a7a4a; }
+  .status-badge.error { background: rgba(200,100,100,0.15); color: #8a3a3a; }
+
+  /* Buttons */
+  .btn {
+    padding: 14px 32px;
+    border: none;
+    border-radius: 2px;
+    font-family: 'Jost', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: var(--deep);
+    color: var(--cream);
+  }
+
+  .btn-primary:hover { background: var(--mid); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--mid);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover { border-color: var(--dusty-rose); color: var(--dusty-rose); }
+
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-top: 28px;
+  }
+
+  /* Progress */
+  .progress-bar {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 16px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blush), var(--dusty-rose));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .progress-text {
+    font-size: 12px;
+    color: var(--light-mid);
+    margin-top: 8px;
+  }
+
+  /* Download */
+  .download-section {
+    display: none;
+    text-align: center;
+    padding: 40px;
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    box-shadow: 0 2px 20px var(--shadow);
+  }
+
+  .download-section.visible { display: block; }
+
+  .download-icon { font-size: 40px; margin-bottom: 16px; }
+
+  .download-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 300;
+    margin-bottom: 8px;
+  }
+
+  .download-sub {
+    font-size: 13px;
+    color: var(--light-mid);
+    margin-bottom: 28px;
+  }
+
+  /* Divider ornament */
+  .ornament {
+    text-align: center;
+    color: var(--blush);
+    font-size: 20px;
+    letter-spacing: 0.3em;
+    margin: 8px 0;
+  }
+
+  /* Spinner */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--blush);
+    border-top-color: var(--dusty-rose);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .card { padding: 24px 20px; }
+    .col-map { grid-template-columns: 1fr; }
+    .steps { flex-direction: column; }
+    .step { border-right: none; border-bottom: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-ornament"></div>
+
+<!-- API Key Bar -->
+<div id="api-key-bar" style="background:#2a1f1a;padding:10px 24px;display:flex;align-items:center;gap:12px;justify-content:center;flex-wrap:wrap;">
+  <span style="font-size:12px;color:#a07060;letter-spacing:0.1em;font-family:'Jost',sans-serif;">ANTHROPIC API KEY</span>
+  <input id="api-key-input" type="password" placeholder="sk-ant-..." 
+    style="background:#1a1210;border:1px solid #6b4f42;color:#faf6f0;padding:7px 14px;font-size:13px;font-family:'Jost',sans-serif;border-radius:2px;width:320px;outline:none;"
+    oninput="API_KEY=this.value.trim();updateKeyStatus()">
+  <span id="key-status" style="font-size:12px;color:#6b4f42;font-family:'Jost',sans-serif;">No key entered</span>
+  <a href="https://console.anthropic.com/account/keys" target="_blank" 
+    style="font-size:11px;color:#c9907a;text-decoration:none;letter-spacing:0.05em;">Get a key →</a>
+</div>
+
+<header>
+  <p class="eyebrow">Wedding Stationery</p>
+  <h1>Address <em>Formatter</em></h1>
+  <p class="subtitle">AI-powered envelope addressing for your perfect day</p>
+</header>
+
+<main>
+
+  <!-- Step indicators -->
+  <div class="steps">
+    <div class="step active" id="step1-ind">
+      <div class="step-num">1</div>
+      <div class="step-label">Set Your Vibe</div>
+    </div>
+    <div class="step" id="step2-ind">
+      <div class="step-num">2</div>
+      <div class="step-label">Upload Addresses</div>
+    </div>
+    <div class="step" id="step3-ind">
+      <div class="step-num">3</div>
+      <div class="step-label">Format & Export</div>
+    </div>
+  </div>
+
+  <!-- Step 1: Vibe -->
+  <div class="card" id="card-vibe">
+    <div class="card-title">Describe your vibe</div>
+    <p class="card-desc">Tell us the feeling you want. The AI will create consistent formatting rules based on your description and apply them to every address.</p>
+    <label for="vibe-input">Your vibe in your own words</label>
+    <textarea id="vibe-input" placeholder="e.g. Formal and classic — use Mr. and Mrs. with full last names, spell out everything, no abbreviations. Feels like an old-money New England wedding." rows="4"></textarea>
+    <div class="vibe-chips">
+      <span class="chip" onclick="setVibe(this)">Formal &amp; traditional</span>
+      <span class="chip" onclick="setVibe(this)">Modern &amp; minimal</span>
+      <span class="chip" onclick="setVibe(this)">Romantic &amp; whimsical</span>
+      <span class="chip" onclick="setVibe(this)">Casual &amp; warm</span>
+      <span class="chip" onclick="setVibe(this)">Southern charm</span>
+      <span class="chip" onclick="setVibe(this)">Rustic &amp; earthy</span>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="lockVibe()">Confirm Vibe →</button>
+    </div>
+  </div>
+
+  <!-- Step 2: Upload -->
+  <div class="card" id="card-upload" style="opacity:0.4;pointer-events:none;">
+    <div class="card-title">Upload your spreadsheet</div>
+    <p class="card-desc">Upload a CSV or Excel file. Your file should have columns for guest name(s), street address, city, state, and ZIP code.</p>
+
+    <div id="upload-area">
+      <div class="upload-zone" id="drop-zone">
+        <input type="file" id="file-input" accept=".csv,.xlsx,.xls" onchange="handleFile(event)">
+        <div class="upload-icon">📋</div>
+        <div class="upload-text">Drop your file here, or click to browse</div>
+        <div class="upload-sub">CSV, XLSX, or XLS files</div>
+      </div>
+    </div>
+
+    <div id="file-loaded-area" style="display:none;">
+      <div class="file-loaded">
+        <span>📄</span>
+        <span id="file-name-display"></span>
+        <span style="margin-left:auto;font-size:11px;color:var(--light-mid)" id="row-count-display"></span>
+        <button class="btn btn-secondary" onclick="resetFile()" style="padding:6px 14px;font-size:11px;">Change</button>
+      </div>
+
+      <div style="margin-top:24px;">
+        <label>Map your columns</label>
+        <p style="font-size:12px;color:var(--light-mid);margin-bottom:12px;">Tell us which column in your file corresponds to each field.</p>
+        <div class="col-map" id="col-map"></div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="startFormatting()">Format Addresses →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3: Results -->
+  <div class="card" id="card-results" style="display:none;">
+    <div class="card-title">Formatted addresses</div>
+    <p class="card-desc" id="results-desc">Formatting in progress…</p>
+
+    <div class="progress-bar" id="progress-bar" style="display:none;">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+    <div class="progress-text" id="progress-text"></div>
+
+    <div class="preview-table-wrap" id="results-table-wrap" style="margin-top:24px;display:none;">
+      <table id="results-table">
+        <thead>
+          <tr>
+            <th>Original Name</th>
+            <th>Formatted Address</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="results-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Download -->
+  <div class="download-section" id="download-section">
+    <div class="download-icon">🎉</div>
+    <div class="download-title">Your addresses are ready</div>
+    <div class="download-sub">Download the CSV to use in your invitation printing software or mail merge.</div>
+    <div class="ornament">— ✦ —</div>
+    <br>
+    <button class="btn btn-primary" onclick="downloadCSV()">Download CSV</button>
+    <button class="btn btn-secondary" onclick="copyAll()" style="margin-left:12px;">Copy All</button>
+  </div>
+
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+
+// API key: set via the input field in the UI. Never hardcode here.
+let API_KEY = '';
+
+const VIBE_PROMPTS = {
+  "Formal & traditional": "Very formal and traditional wedding style. Use titles like Mr., Mrs., Miss, Dr. Use full names with no nicknames. Spell out Street, Avenue, Boulevard, Drive, etc. Spell out state names fully (no abbreviations). Use 'and' between couple names, never '&'. Example format:\nMr. and Mrs. Jonathan Harrington\n142 Elm Street\nBoston, Massachusetts 02101",
+  "Modern & minimal": "Modern, clean, and minimal. Use first and last names with no titles. Use '&' between couple names. Keep standard abbreviations (St, Ave, etc). Use state abbreviation (2 letters). Format all on separate lines, clean and simple.",
+  "Romantic & whimsical": "Romantic and whimsical. Use first names only for couples (e.g. 'Emily & James'). For formal guests use gentle titles. Spell out 'and'. Spell out street type (Lane, Court, etc). Spell out state name. Feels like a love letter.",
+  "Casual & warm": "Casual and warm. Use first names only. Use '&' between couple names. Standard abbreviations are fine. State abbreviation is fine. Feels friendly and inviting, not stuffy.",
+  "Southern charm": "Southern charm and hospitality. Use 'Mr. and Mrs.' for married couples. Use full names. Spell out street types. Spell out state names. Warm but proper — the kind of address you'd see on a Georgia plantation wedding.",
+  "Rustic & earthy": "Rustic, natural, earthy style. Use first names and last names, no titles unless it's a doctor. Use '&' between couple names. Abbreviations are fine. Keep it grounded and real."
+};
+
+let vibeText = '';
+let vibeRules = '';
+let parsedData = [];
+let headers = [];
+let formattedResults = [];
+let columnMap = { name: '', street: '', city: '', state: '', zip: '' };
+
+function setVibe(chip) {
+  const key = chip.textContent.trim();
+  document.getElementById('vibe-input').value = VIBE_PROMPTS[key] || key;
+}
+
+function updateKeyStatus() {
+  const st = document.getElementById('key-status');
+  if (API_KEY && API_KEY.startsWith('sk-ant-')) {
+    st.textContent = '✓ Key ready';
+    st.style.color = '#6aaa6a';
+  } else if (API_KEY) {
+    st.textContent = '⚠ Key format looks off';
+    st.style.color = '#c9907a';
+  } else {
+    st.textContent = 'No key entered';
+    st.style.color = '#6b4f42';
+  }
+}
+
+function lockVibe() {
+  if (!API_KEY) {
+    alert('Please enter your Anthropic API key in the bar at the top first.');
+    document.getElementById('api-key-input').focus();
+    return;
+  }
+  vibeText = document.getElementById('vibe-input').value.trim();
+  if (!vibeText) { alert('Please describe your vibe first.'); return; }
+
+  // Store the vibe directly — it will be used as instructions when formatting each address
+  vibeRules = vibeText;
+
+  document.getElementById('step1-ind').classList.add('done');
+  document.getElementById('step2-ind').classList.add('active');
+  document.getElementById('card-upload').style.opacity = '1';
+  document.getElementById('card-upload').style.pointerEvents = 'auto';
+
+  const btn = document.querySelector('#card-vibe .btn-primary');
+  btn.textContent = '✓ Vibe Confirmed';
+  btn.disabled = true;
+  document.getElementById('vibe-input').disabled = true;
+  document.querySelectorAll('.chip').forEach(c => c.style.pointerEvents = 'none');
+
+  // Scroll to upload step
+  document.getElementById('card-upload').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function handleFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  parseFile(file);
+}
+
+function parseFile(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+
+  if (ext === 'csv') {
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        parsedData = results.data;
+        headers = results.meta.fields;
+        showFileLoaded(file.name);
+      }
+    });
+  } else if (ext === 'xlsx' || ext === 'xls') {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const wb = XLSX.read(e.target.result, { type: 'binary' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const json = XLSX.utils.sheet_to_json(ws, { defval: '' });
+      parsedData = json;
+      headers = Object.keys(json[0] || {});
+      showFileLoaded(file.name);
+    };
+    reader.readAsBinaryString(file);
+  }
+}
+
+function showFileLoaded(filename) {
+  document.getElementById('upload-area').style.display = 'none';
+  document.getElementById('file-loaded-area').style.display = 'block';
+  document.getElementById('file-name-display').textContent = filename;
+  document.getElementById('row-count-display').textContent = `${parsedData.length} guests`;
+  buildColumnMap();
+}
+
+function resetFile() {
+  document.getElementById('upload-area').style.display = 'block';
+  document.getElementById('file-loaded-area').style.display = 'none';
+  document.getElementById('file-input').value = '';
+  parsedData = [];
+  headers = [];
+}
+
+function buildColumnMap() {
+  const fields = [
+    { key: 'name', label: 'Guest Name(s)', hints: ['name', 'guest', 'person', 'full'] },
+    { key: 'street', label: 'Street Address', hints: ['street', 'address', 'addr', 'line1'] },
+    { key: 'city', label: 'City', hints: ['city', 'town'] },
+    { key: 'state', label: 'State', hints: ['state', 'province', 'st'] },
+    { key: 'zip', label: 'ZIP Code', hints: ['zip', 'postal', 'code'] },
+  ];
+
+  const container = document.getElementById('col-map');
+  container.innerHTML = '';
+
+  fields.forEach(field => {
+    const div = document.createElement('div');
+    div.className = 'col-map-item';
+
+    const lbl = document.createElement('label');
+    lbl.textContent = field.label;
+
+    const sel = document.createElement('select');
+    sel.id = 'map-' + field.key;
+    sel.innerHTML = '<option value="">— Select column —</option>';
+
+    // Auto-detect
+    let autoMatch = '';
+    headers.forEach(h => {
+      const opt = document.createElement('option');
+      opt.value = h;
+      opt.textContent = h;
+      sel.appendChild(opt);
+      if (!autoMatch && field.hints.some(hint => h.toLowerCase().includes(hint))) {
+        autoMatch = h;
+      }
+    });
+    if (autoMatch) sel.value = autoMatch;
+    columnMap[field.key] = sel.value;
+    sel.onchange = () => { columnMap[field.key] = sel.value; };
+
+    div.appendChild(lbl);
+    div.appendChild(sel);
+    container.appendChild(div);
+  });
+}
+
+async function startFormatting() {
+  // Validate mapping
+  const required = ['name', 'street', 'city', 'state', 'zip'];
+  for (const key of required) {
+    columnMap[key] = document.getElementById('map-' + key).value;
+    if (!columnMap[key]) {
+      alert(`Please map the "${key}" column.`);
+      return;
+    }
+  }
+
+  document.getElementById('step2-ind').classList.add('done');
+  document.getElementById('step3-ind').classList.add('active');
+  document.getElementById('card-results').style.display = 'block';
+  document.getElementById('progress-bar').style.display = 'block';
+  document.getElementById('results-table-wrap').style.display = 'block';
+
+  // Scroll to results
+  document.getElementById('card-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  formattedResults = new Array(parsedData.length).fill(null);
+
+  // Build table rows
+  const tbody = document.getElementById('results-body');
+  tbody.innerHTML = '';
+  parsedData.forEach((row, i) => {
+    const tr = document.createElement('tr');
+    tr.id = 'row-' + i;
+    tr.innerHTML = `
+      <td>${row[columnMap.name] || '—'}</td>
+      <td class="formatted-cell" id="fmt-${i}">—</td>
+      <td><span class="status-badge pending" id="status-${i}">Pending</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Process in batches of 5
+  const BATCH = 5;
+  let done = 0;
+
+  for (let i = 0; i < parsedData.length; i += BATCH) {
+    const batch = parsedData.slice(i, i + BATCH);
+    await Promise.all(batch.map(async (row, bi) => {
+      const idx = i + bi;
+      document.getElementById('status-' + idx).innerHTML = '<span class="spinner"></span>';
+      document.getElementById('status-' + idx).className = 'status-badge loading';
+
+      try {
+        const formatted = await formatAddress(row, idx);
+        formattedResults[idx] = formatted;
+        document.getElementById('fmt-' + idx).textContent = formatted;
+        document.getElementById('status-' + idx).textContent = '✓ Done';
+        document.getElementById('status-' + idx).className = 'status-badge done';
+      } catch(e) {
+        console.error('Row', idx, 'error:', e);
+        formattedResults[idx] = '';
+        document.getElementById('fmt-' + idx).textContent = 'Could not format: ' + e.message;
+        document.getElementById('status-' + idx).textContent = '✗ ' + e.message.slice(0, 30);
+        document.getElementById('status-' + idx).className = 'status-badge error';
+        document.getElementById('status-' + idx).title = e.message;
+      }
+
+      done++;
+      const pct = Math.round((done / parsedData.length) * 100);
+      document.getElementById('progress-fill').style.width = pct + '%';
+      document.getElementById('progress-text').textContent = `${done} of ${parsedData.length} addresses formatted`;
+    }));
+  }
+
+  document.getElementById('results-desc').textContent = `All ${parsedData.length} addresses formatted in your style.`;
+  document.getElementById('download-section').classList.add('visible');
+  document.getElementById('download-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function formatAddress(row, idx) {
+  const mappedData = {
+    name: row[columnMap.name] || '',
+    street: row[columnMap.street] || '',
+    city: row[columnMap.city] || '',
+    state: row[columnMap.state] || '',
+    zip: row[columnMap.zip] || ''
+  };
+
+  // Pass ALL row data so AI can use anything useful and make smart assumptions
+  const allRowData = Object.entries(row)
+    .map(([k, v]) => k + ': ' + v)
+    .join('\n');
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'anthropic-version': '2023-06-01',
+      'x-api-key': API_KEY,
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      messages: [{
+        role: 'user',
+        content: `You are a wedding stationery expert formatting envelope addresses. The couple has described their vibe as:\n\n"${vibeRules}"\n\nUse that vibe to determine the appropriate style — titles, abbreviations, spelling, punctuation — and apply it consistently.\n\nIMPORTANT: The spreadsheet data may be messy or inconsistent. Make smart assumptions:\n- If a field is blank or weird, use context clues from other fields\n- If city/state seem swapped or combined, sort it out\n- If the name has extra info like "and family", incorporate it naturally per the vibe\n- If ZIP is missing, omit it gracefully\n- Correct obvious data entry errors\n- ALWAYS produce a reasonable formatted address — never fail\n\nReturn ONLY the formatted address with line breaks. No explanation, no extra text, no quotes.\n\nMapped fields:\nName: ${mappedData.name}\nStreet: ${mappedData.street}\nCity: ${mappedData.city}\nState: ${mappedData.state}\nZIP: ${mappedData.zip}\n\nAll raw row data (use this to fill gaps or fix errors):\n${allRowData}`
+      }]
+    })
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error('API error:', res.status, errText);
+    throw new Error('API error ' + res.status);
+  }
+
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.content[0].text.trim();
+}
+
+function downloadCSV() {
+  const rows = [['Original Name', 'Original Address', 'Formatted Address']];
+  parsedData.forEach((row, i) => {
+    rows.push([
+      row[columnMap.name] || '',
+      `${row[columnMap.street]}, ${row[columnMap.city]}, ${row[columnMap.state]} ${row[columnMap.zip]}`,
+      formattedResults[i] || ''
+    ]);
+  });
+  const csv = Papa.unparse(rows);
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'wedding-addresses.csv';
+  a.click();
+}
+
+function copyAll() {
+  const text = formattedResults.filter(Boolean).join('\n\n---\n\n');
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('#download-section .btn-secondary');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = 'Copy All', 2000);
+  });
+}
+
+// Drag and drop
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+dz.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dz.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) parseFile(file);
+});
+
+</script>
+</body>
+</html>
